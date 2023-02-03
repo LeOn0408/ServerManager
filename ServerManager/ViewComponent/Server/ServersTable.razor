@@ -1,0 +1,101 @@
+@inject CoreData.ServerDataService ServerData
+<ModalCard OnClickMethodCallback="MethodCard" OnClickExitCallback="Exit">
+    <ServerInfo SelectedServer=@_selectServerDto></ServerInfo>
+</ModalCard>
+<PageTitle>Панель администратора</PageTitle>
+
+<button type="button" class="btn btn-primary my-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Добавить сервер</button>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Тип</th>
+        <th>Наименование</th>
+        <th>Адрес</th>
+        <th>Статус</th>
+        <th>Карта</th>
+        <th>Количество игроков</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var server in _servers)
+    {
+        <tr>
+            <td>@GetTypeServers(server.TypeServer)</td>
+            <td>@server.Name</td>
+            <td>@server.IpAddress</td>
+            <td>
+                <p class="placeholder-glow">
+                  <span class="placeholder col-12"></span>
+                </p>
+            </td>
+            <td>
+                <p class="placeholder-glow">
+                    <span class="placeholder col-12"></span>
+                </p>
+            </td>
+            <td>
+                <p class="placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </p>
+            </td>
+            
+            <td class="col-1"><button type="button" class="btn btn-secondary" @onclick="@(() => ShowEditServer(server))">Изменить</button></td>
+            <td class="col-1"><button type="button" class="btn btn-danger">Удалить</button></td>
+        </tr> 
+    }
+    </tbody>
+</table>
+
+@code {
+    private List<CoreModels.ServerDto> _servers { get; set; }
+
+    private CoreModels.ServerDto _selectServerDto = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _servers = await ServerData.GetAll();
+    }
+
+    private string GetTypeServers(CoreModels.TypeServer serverTypeServer)
+    {
+        return serverTypeServer switch
+        {
+            CoreModels.TypeServer.Ark => "Ark",
+            CoreModels.TypeServer.Minecraft => "Minecraft",
+            _ => "unknow"
+            };
+    }
+    private void MethodCard()
+    {
+        if (_selectServerDto.Id == 0)
+            AddServer();
+        else
+            EditServer();
+        _selectServerDto = new CoreModels.ServerDto();
+        StateHasChanged();
+    }
+
+    private void AddServer()
+    {
+        _selectServerDto.Id = new DateTime().Millisecond;
+        
+        _servers.Add(_selectServerDto);
+    }
+
+    private void EditServer()
+    {
+        
+    }
+
+    private void Exit()
+    {
+        _selectServerDto = new CoreModels.ServerDto();
+    }
+
+    private void ShowEditServer(CoreModels.ServerDto serverDto)
+    {
+        _selectServerDto = serverDto;
+        StateHasChanged();
+    }
+
+}
