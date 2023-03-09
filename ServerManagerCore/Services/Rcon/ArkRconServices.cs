@@ -16,17 +16,17 @@ namespace ServerManagerCore.Services.Rcon
 {
     internal class ArkRconServices : IRconServices
     {
-        public List<Player> GetPlayers(ServerAdminInfoDto server)
+        public async Task<List<Player>> GetPlayers(ServerAdminInfoDto server)
         {
-            List<Player> players = new() { new Player { ServerId = server.Id, Name = "Тестовый", SteamId = "0" } };
+            List<Player> players = new();
             if (server.RconAddress is null)
             {
                 return players;
             }
             if (IPEndPoint.TryParse(server.RconAddress, out IPEndPoint? ipAddress) && ipAddress is not null)
             {
-                string rconCMD = new RconCommand(ipAddress.Address.ToString(), server.RconPass, (ushort)ipAddress.Port).GetRconAsync("listplayers").Result;
-                if (rconCMD is not "No Players Connected")
+                string rconCMD = await new RconCommand(ipAddress.Address.ToString(), server.RconPass, (ushort)ipAddress.Port).GetRconAsync("listplayers");
+                if (!string.IsNullOrEmpty(rconCMD) && rconCMD is not "No Players Connected")
                 {
                     rconCMD = rconCMD.Remove(0, 2);
                     string[] words = rconCMD.Split("\r\n");

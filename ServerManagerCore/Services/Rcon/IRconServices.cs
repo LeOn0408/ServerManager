@@ -4,6 +4,6 @@ namespace ServerManagerCore.Services.Rcon
 {
     public interface IRconServices
     {
-        List<Player> GetPlayers(ServerAdminInfoDto server);
+        Task<List<Player>> GetPlayers(ServerAdminInfoDto server);
     }
 }

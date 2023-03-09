@@ -35,7 +35,8 @@ namespace ServerManagerCore.Services.Rcon
 
             catch (Exception)
             {
-                throw new Exception("Not connect");
+                //TODO: Обработать ошибки
+                return string.Empty;
             }
         }
         public async void SetRconAsync(string cmd)
