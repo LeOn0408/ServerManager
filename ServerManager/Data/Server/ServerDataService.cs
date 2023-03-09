@@ -15,30 +15,30 @@ public class ServerDataService : IServerDataService
         _db = db;
     }
 
-    public List<ServerDto> GetActive()
+    public async Task<ServerDto>? GetAsync(int id)
     {
-        throw new NotImplementedException();
+        return await _db.ServerList.Include(p => p.ServerPublicInfo).Include(a => a.AdminInfo)?.Include(p => p.Players).FirstOrDefaultAsync(server => server.Id == id);
     }
 
-    public Task<List<ServerDto>> GetAll()
+    public async Task<List<ServerDto>> GetAllAsync()
     {
-        var servers = _db.ServerList.Include(p => p.ServerPublicInfo).Include(a => a.AdminInfo).Include(p=>p.Players).ToList();
-        return Task.FromResult(servers);
+        var servers = await _db.ServerList.Include(p => p.ServerPublicInfo).Include(a => a.AdminInfo).Include(p=>p.Players).ToListAsync();
+        return servers;
     }
 
-    public Task<ServerDto> AddServerInfo(ServerDto serverDto)
+    public async Task<ServerDto> AddServerInfoAsync(ServerDto serverDto)
     {
         _db.ServerList.Add(serverDto);
-        _db.SaveChanges();
-        return Task.FromResult(serverDto);
+        await _db.SaveChangesAsync();
+        return serverDto;
     }
-    public async Task<ServerDto> EditServerInfo(ServerDto server)
+    public async Task<ServerDto> EditServerInfoAsync(ServerDto server)
     {
         var serverData = await _db.ServerList.FirstOrDefaultAsync(s => s.Id == server.Id);
         if (serverData != null)
         {
             serverData = server;
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
         var editServer = await _db.ServerList.FirstOrDefaultAsync(s => s.Id == server.Id);
         if (editServer != null)

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ServerManager.Data.User;
 using ServerManagerCore.Models;
+using ServerManagerCore.Models.Tasks;
 using System.Text;
 
 namespace ServerManager.Data.Context
@@ -13,8 +14,9 @@ namespace ServerManager.Data.Context
         public DbSet<ServerAdminInfoDto> ServersAdminInfo { get; set; }
         public DbSet<ServerPublicInfo> ServersPublicInfo { get; set; }
         public DbSet<Player> Players { get; set; }
+        public DbSet<ServerTask> Tasks { get; set; }
 
-        public DataContext(DbContextOptions<DataContext> options)
+    public DataContext(DbContextOptions<DataContext> options)
             : base(options)
         {
 

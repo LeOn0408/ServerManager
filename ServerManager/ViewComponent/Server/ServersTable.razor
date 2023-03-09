@@ -63,7 +63,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _servers = await ServerData.GetAll();
+        _servers = await ServerData.GetAllAsync();
         foreach(var server in _servers)
         {
             _ = Task.Run(() => 
@@ -98,12 +98,12 @@
     private async void AddServer()
     {
 
-        _servers.Add(await ServerData.AddServerInfo(_selectServerDto));
+        _servers.Add(await ServerData.AddServerInfoAsync(_selectServerDto));
     }
 
     private async void EditServer()
     {
-        var select = await ServerData.EditServerInfo(_selectServerDto);
+        var select = await ServerData.EditServerInfoAsync(_selectServerDto);
         var editServer = _servers.FirstOrDefault(s => s.Id == select.Id);
         editServer = select;
     }

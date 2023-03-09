@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ServerManager.Data.Context;
 using ServerManager.Data.Server;
+using ServerManagerCore.Services;
 
 namespace ServerManager.Data
 {
@@ -20,7 +21,9 @@ namespace ServerManager.Data
             DataBaseRegister();
             _services.AddRazorPages();
             _services.AddServerSideBlazor();
+            _services.AddHostedService<ServerJobs>();
             _services.AddTransient<ServerDataService>();
+            _services.AddTransient<ServerTaskDataService >();
         }
         private void DataBaseRegister()
         {
@@ -35,7 +38,7 @@ namespace ServerManager.Data
             string? connection = _configuration.GetSection("Database").GetSection("MySql").GetSection("DefaultConnection").Value;
             if (connection == null) throw new Exception("DefaultConnection is empty");
             ServerVersion vesrion = ServerVersion.AutoDetect(connection);
-            _services.AddDbContext<DataContext>(options =>
+            _services.AddDbContextPool<DataContext>(options =>
                 options.UseMySql(connection, vesrion,
                 mySqlOptions =>
                 {

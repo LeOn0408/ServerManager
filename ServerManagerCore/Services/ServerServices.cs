@@ -1,7 +1,6 @@
 ﻿using A2S;
 using ServerManagerCore.Models;
 using ServerManagerCore.Services.Rcon;
-using ServerManagerCore.Services.Rcon.Rcon;
 using System.Net;
 
 namespace ServerManagerCore.Services
@@ -31,7 +30,7 @@ namespace ServerManagerCore.Services
                     _server?.Players?.Add(player);
                 }
             }
-            _serverData.EditServerInfo(_server);
+            _serverData.EditServerInfoAsync(_server);
             return Task.CompletedTask;
         }
         public Task SavePublicInfo()
@@ -52,7 +51,7 @@ namespace ServerManagerCore.Services
                     string[] MapAndVersion = serverSteam.Name.Split("- (v");
                     _server.ServerPublicInfo.Version = MapAndVersion[1].Trim(')');
 
-                    _serverData.EditServerInfo(_server);
+                    _serverData.EditServerInfoAsync(_server);
                     #region
                     //    var response = $@"
                     //Protocol: {server.Protocol}

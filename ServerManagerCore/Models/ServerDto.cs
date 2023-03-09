@@ -44,6 +44,6 @@ public class Player
     public int Id { get; set; }
     public ServerDto Server { get; set; } = null!;
     public int ServerId { get; set; }
-    public string Name { get; set; }
-    public string SteamId { get; set; }
+    public string? Name { get; set; }
+    public string? SteamId { get; set; }
 }
