@@ -1,6 +1,6 @@
 ﻿using ServerManagerCore.Models;
 
-namespace ServerManagerCore.Services
+namespace ServerManagerCore.Services.Rcon
 {
     internal class RconServicesBuilder
     {
@@ -8,11 +8,11 @@ namespace ServerManagerCore.Services
 
         public RconServicesBuilder(TypeServer typeServer)
         {
-           _typeServer = typeServer;
+            _typeServer = typeServer;
         }
         public IRconServices Get()
         {
-            switch(_typeServer)
+            switch (_typeServer)
             {
                 case TypeServer.Ark:
                     return new ArkRconServices();

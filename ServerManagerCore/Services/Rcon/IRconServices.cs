@@ -1,6 +1,6 @@
 ﻿using ServerManagerCore.Models;
 
-namespace ServerManagerCore.Services
+namespace ServerManagerCore.Services.Rcon
 {
     public interface IRconServices
     {

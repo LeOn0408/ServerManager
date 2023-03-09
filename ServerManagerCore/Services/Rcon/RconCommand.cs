@@ -6,11 +6,11 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServerManagerCore.Services
+namespace ServerManagerCore.Services.Rcon
 {
-    public class Rcon
+    public class RconCommand
     {
-        public Rcon(string ip, string? pass, ushort port)
+        public RconCommand(string ip, string? pass, ushort port)
         {
             Ip = ip;
             Pass = pass;
