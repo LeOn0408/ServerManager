@@ -1,4 +1,7 @@
-@inject CoreData.ServerDataService ServerData
+@using ServerManager.Data.Server;
+@using ServerManagerCore.Models;
+@using ServerManagerCore.Services;
+@inject  ServerDataService ServerData
 <ModalCard OnClickMethodCallback="MethodCard" OnClickExitCallback="Exit">
     <ServerInfo SelectedServer=@_selectServerDto></ServerInfo>
 </ModalCard>
@@ -24,22 +27,27 @@
             <td>@server.Name</td>
             <td>@server.IpAddress</td>
             <td>
-                <p class="placeholder-glow">
+                @*<p class="placeholder-glow">
                   <span class="placeholder col-12"></span>
-                </p>
+                </p>*@
+                @if (server.Launched)
+                {
+                    <span>Запущен</span>
+                }
+                else
+                {
+                    <span>Недоступен</span>
+                }
+
             </td>
             <td>
-                <p class="placeholder-glow">
-                    <span class="placeholder col-12"></span>
-                </p>
+                @server.ServerPublicInfo.Map
             </td>
             <td>
-                <p class="placeholder-glow">
-                    <span class="placeholder col-6"></span>
-                </p>
+                @TotalPlayersAllServers.Where(s => s.Id == server.Id).Count()
             </td>
             
-            <td class="col-1"><button type="button" class="btn btn-secondary" @onclick="@(() => ShowEditServer(server))">Изменить</button></td>
+            <td class="col-1"><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" @onclick="@(() => ShowEditServer(server))">Изменить</button></td>
             <td class="col-1"><button type="button" class="btn btn-danger">Удалить</button></td>
         </tr> 
     }
@@ -47,24 +55,36 @@
 </table>
 
 @code {
-    private List<CoreModels.ServerDto> _servers { get; set; }
+    private List<CoreModels.ServerDto> _servers { get; set; } = new();
+
+    private List<Player> TotalPlayersAllServers { get; set; } = new();
 
     private CoreModels.ServerDto _selectServerDto = new();
-    
+
     protected override async Task OnInitializedAsync()
     {
         _servers = await ServerData.GetAll();
-    }
-
-    private string GetTypeServers(CoreModels.TypeServer serverTypeServer)
-    {
-        return serverTypeServer switch
+        foreach(var server in _servers)
         {
-            CoreModels.TypeServer.Ark => "Ark",
-            CoreModels.TypeServer.Minecraft => "Minecraft",
-            _ => "unknow"
-            };
+            _ = Task.Run(() => 
+            {
+                var serverService = new ServerServices(ServerData, server);
+                Task.Run(()=> {
+                    serverService.SavePlayerInfo();
+                    serverService.SavePublicInfo();
+                });
+                var onlinePlayers = serverService.GetPlayersInfo();
+                if(onlinePlayers != null)
+                    TotalPlayersAllServers.AddRange(onlinePlayers);
+            });
+        }
     }
+    private string GetTypeServers(CoreModels.TypeServer serverTypeServer) => serverTypeServer switch
+    {
+        CoreModels.TypeServer.Ark => "Ark",
+        CoreModels.TypeServer.Minecraft => "Minecraft",
+        _ => "unknown"
+    };
     private void MethodCard()
     {
         if (_selectServerDto.Id == 0)
@@ -75,16 +95,17 @@
         StateHasChanged();
     }
 
-    private void AddServer()
+    private async void AddServer()
     {
-        _selectServerDto.Id = new DateTime().Millisecond;
-        
-        _servers.Add(_selectServerDto);
+
+        _servers.Add(await ServerData.AddServerInfo(_selectServerDto));
     }
 
-    private void EditServer()
+    private async void EditServer()
     {
-        
+        var select = await ServerData.EditServerInfo(_selectServerDto);
+        var editServer = _servers.FirstOrDefault(s => s.Id == select.Id);
+        editServer = select;
     }
 
     private void Exit()
@@ -95,6 +116,7 @@
     private void ShowEditServer(CoreModels.ServerDto serverDto)
     {
         _selectServerDto = serverDto;
+        
         StateHasChanged();
     }
 

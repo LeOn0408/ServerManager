@@ -1,16 +1,41 @@
 @using ServerManager.Models
+@using ServerManagerCore.Models;
 
 @if(SelectedServer is not null)
 {
-<div class="row">
+<div class="row gy-2">
+    <div class="input-group">
+        <label class="input-group-text">Тип сервера</label>
+        <select class="form-select" @bind="SelectedServer.TypeServer">
+            <option selected>Выберите...</option>
+                <option value="@TypeServer.Ark">Ark</option>
+            @*<option value="2">Minecraft</option>*@
+        </select>
+    </div>
     <div class="input-group">
         <span class="input-group-text">Наименование</span>
         <input class="form-control" aria-label="С текстовым полем" @bind="SelectedServer.Name" />
     </div>
     <div class="input-group">
-        <span class="input-group-text">Адрес</span>
+        <span class="input-group-text">IP</span>
         <input class="form-control" aria-label="С текстовым полем" @bind="SelectedServer.IpAddress" />
     </div>
+
+    <div class="input-group">
+        <span class="input-group-text">Путь установки</span>
+        <input class="form-control" aria-label="С текстовым полем" @bind="SelectedServer.Path" />
+    </div>
+
+    <div class="input-group">
+        <span class="input-group-text">RCON IP</span>
+        <input class="form-control" aria-label="С текстовым полем" @bind="SelectedServer.AdminInfo.RconAddress" />
+    </div>
+
+    <div class="input-group">
+        <span class="input-group-text">RCON пароль</span>
+        <input class="form-control" aria-label="С текстовым полем" @bind="SelectedServer.AdminInfo.RconPass" />
+    </div>
+    
 </div>
 }
 
@@ -18,8 +43,6 @@
 
     [Parameter]
     public CoreModels.ServerDto? SelectedServer { get; set; }
-
-    
 
 }
 
