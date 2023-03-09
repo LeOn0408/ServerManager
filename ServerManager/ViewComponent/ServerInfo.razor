@@ -16,10 +16,16 @@
         <span class="input-group-text">Наименование</span>
         <input class="form-control" aria-label="С текстовым полем" @bind="SelectedServer.Name" />
     </div>
+
     <div class="input-group">
         <span class="input-group-text">IP</span>
         <input class="form-control" aria-label="С текстовым полем" @bind="SelectedServer.IpAddress" />
     </div>
+
+        <div class="input-group">
+            <span class="input-group-text">Публичный IP</span>
+            <input class="form-control" aria-label="С текстовым полем" @bind="SelectedServer.ServerPublicInfo.IP" />
+        </div>
 
     <div class="input-group">
         <span class="input-group-text">Путь установки</span>
@@ -33,7 +39,7 @@
 
     <div class="input-group">
         <span class="input-group-text">RCON пароль</span>
-        <input class="form-control" aria-label="С текстовым полем" @bind="SelectedServer.AdminInfo.RconPass" />
+        <input class="form-control" aria-label="С текстовым полем" @bind="SelectedServer.AdminInfo.RconPass" type="password"/>
     </div>
     
 </div>

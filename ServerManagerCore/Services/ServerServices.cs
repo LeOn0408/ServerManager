@@ -18,10 +18,10 @@ namespace ServerManagerCore.Services
             _rconServices = new RconServicesBuilder(server.TypeServer).Get();
         }
 
-        public List<Player> GetPlayersInfo() => _rconServices.GetPlayers(_server.AdminInfo);
-        public Task SavePlayerInfo()
+        public async Task<List<Player>> GetPlayersInfo() => await _rconServices.GetPlayers(_server.AdminInfo);
+        public async Task SavePlayerInfo()
         {
-            var players = _rconServices.GetPlayers(_server.AdminInfo);
+            var players = await _rconServices.GetPlayers(_server.AdminInfo);
             foreach (var player in players)
             {
                 var sPlayer = _server?.Players?.FirstOrDefault(p => p.SteamId == player.SteamId);
@@ -30,8 +30,7 @@ namespace ServerManagerCore.Services
                     _server?.Players?.Add(player);
                 }
             }
-            _serverData.EditServerInfoAsync(_server);
-            return Task.CompletedTask;
+            await _serverData.EditServerInfoAsync(_server);
         }
         public Task SavePublicInfo()
         {
@@ -42,47 +41,53 @@ namespace ServerManagerCore.Services
             }
             if (IPEndPoint.TryParse(_server.IpAddress, out IPEndPoint? ipAddress) && ipAddress is not null)
             {
-                dynamic serverSteam = Server.Query(ipAddress.Address.ToString(), ipAddress.Port, 5);
-                if (serverSteam is not Exception and not null)
+                try
                 {
-                    _server.Launched= true;
-                    _server.ServerPublicInfo.Name = serverSteam.Name;
-                    _server.ServerPublicInfo.Map = serverSteam.Map;
-                    string[] MapAndVersion = serverSteam.Name.Split("- (v");
-                    _server.ServerPublicInfo.Version = MapAndVersion[1].Trim(')');
+                    dynamic serverSteam = Server.Query(ipAddress.Address.ToString(), ipAddress.Port, 5);
+                    if (serverSteam is not Exception and not null)
+                    {
+                        _server.Launched = true;
+                        _server.ServerPublicInfo.Name = serverSteam.Name;
+                        _server.ServerPublicInfo.Map = serverSteam.Map;
+                        string[] MapAndVersion = serverSteam.Name.Split("- (v");
+                        _server.ServerPublicInfo.Version = MapAndVersion[1].Trim(')');
 
-                    _serverData.EditServerInfoAsync(_server);
-                    #region
-                    //    var response = $@"
-                    //Protocol: {server.Protocol}
-                    //Name: {server.Name}
-                    //Map: {server.Map}
-                    //Folder: {server.Folder}
-                    //Game: {server.Game}
-                    //ID: {server.Id}
-                    //Players: {server.Players}
-                    //Max Players: {server.MaxPlayers}
-                    //Bots: {server.Bots}
-                    //Server Type: {server.ServerType}
-                    //Environment: {server.Environment}
-                    //Visibility: {server.Visibility}
-                    //VAC: {server.Vac}
-                    //Version: {server.Version}
-                    //ExtraDataFlags:
-                    //    Port: {server.Port}
-                    //    SteamId: {server.SteamId}
-                    //    Spectator:
-                    //        Name: {server.Spectator}
-                    //        Port: {server.SpectatorPort}
-                    //    Keywords: {server.Keywords}
-                    //    GameId: {server.GameId}";
+                        _serverData.EditServerInfoAsync(_server);
+                        #region
+                        //    var response = $@"
+                        //Protocol: {server.Protocol}
+                        //Name: {server.Name}
+                        //Map: {server.Map}
+                        //Folder: {server.Folder}
+                        //Game: {server.Game}
+                        //ID: {server.Id}
+                        //Players: {server.Players}
+                        //Max Players: {server.MaxPlayers}
+                        //Bots: {server.Bots}
+                        //Server Type: {server.ServerType}
+                        //Environment: {server.Environment}
+                        //Visibility: {server.Visibility}
+                        //VAC: {server.Vac}
+                        //Version: {server.Version}
+                        //ExtraDataFlags:
+                        //    Port: {server.Port}
+                        //    SteamId: {server.SteamId}
+                        //    Spectator:
+                        //        Name: {server.Spectator}
+                        //        Port: {server.SpectatorPort}
+                        //    Keywords: {server.Keywords}
+                        //    GameId: {server.GameId}";
 
-                    #endregion
+                        #endregion
+                    }
+                    else
+                    {
+                        _server.Launched = false;
+                    }
                 }
-                else
-                {
-                    _server.Launched = false;
-                }
+                catch(Exception ex) { };
+
+                
                 return Task.CompletedTask;
             }
             else 

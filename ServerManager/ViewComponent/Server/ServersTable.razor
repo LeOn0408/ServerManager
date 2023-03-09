@@ -10,14 +10,18 @@
 <button type="button" class="btn btn-primary my-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Добавить сервер</button>
 <table class="table">
     <thead>
-    <tr>
-        <th>Тип</th>
-        <th>Наименование</th>
-        <th>Адрес</th>
-        <th>Статус</th>
-        <th>Карта</th>
-        <th>Количество игроков</th>
-    </tr>
+        <tr>
+            <th>Тип</th>
+            <th>Наименование</th>
+            <th>Локальный адрес</th>
+            <th>Публичный адрес</th>
+            <th>Статус</th>
+            <th>Карта</th>
+            <th>Количество игроков</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
     </thead>
     <tbody>
     @foreach (var server in _servers)
@@ -26,6 +30,7 @@
             <td>@GetTypeServers(server.TypeServer)</td>
             <td>@server.Name</td>
             <td>@server.IpAddress</td>
+            <td>@server.ServerPublicInfo.IP</td>
             <td>
                 @*<p class="placeholder-glow">
                   <span class="placeholder col-12"></span>
@@ -46,8 +51,9 @@
             <td>
                 @TotalPlayersAllServers.Where(s => s.Id == server.Id).Count()
             </td>
-            
-            <td class="col-1"><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" @onclick="@(() => ShowEditServer(server))">Изменить</button></td>
+
+            <td class="col-1"><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" @onclick="@(() => ShowServer(server))">Задачи</button></td>
+            <td class="col-1"><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" @onclick="@(() => ShowServer(server))">Изменить</button></td>
             <td class="col-1"><button type="button" class="btn btn-danger">Удалить</button></td>
         </tr> 
     }
@@ -66,17 +72,12 @@
         _servers = await ServerData.GetAllAsync();
         foreach(var server in _servers)
         {
-            _ = Task.Run(() => 
-            {
-                var serverService = new ServerServices(ServerData, server);
-                Task.Run(()=> {
-                    serverService.SavePlayerInfo();
-                    serverService.SavePublicInfo();
-                });
-                var onlinePlayers = serverService.GetPlayersInfo();
-                if(onlinePlayers != null)
-                    TotalPlayersAllServers.AddRange(onlinePlayers);
-            });
+            var serverService = new ServerServices(ServerData, server);
+            var player = serverService.SavePlayerInfo();
+            var publicInfo = serverService.SavePublicInfo();
+            var onlinePlayers = await serverService.GetPlayersInfo();
+            if (onlinePlayers != null)
+                TotalPlayersAllServers.AddRange(onlinePlayers);
         }
     }
     private string GetTypeServers(CoreModels.TypeServer serverTypeServer) => serverTypeServer switch
@@ -107,13 +108,12 @@
         var editServer = _servers.FirstOrDefault(s => s.Id == select.Id);
         editServer = select;
     }
-
     private void Exit()
     {
         _selectServerDto = new CoreModels.ServerDto();
     }
 
-    private void ShowEditServer(CoreModels.ServerDto serverDto)
+    private void ShowServer(CoreModels.ServerDto serverDto)
     {
         _selectServerDto = serverDto;
         
